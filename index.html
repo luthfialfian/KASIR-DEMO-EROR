@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Asoka Retail - Kasir (Demo)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Loader -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <p>Memuat Aplikasi Kasir...</p>
+  </div>
+
+  <div class="wrap">
+    <!-- HEADER -->
+    <header>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="machine">No Mesin: <strong>2102</strong></div>
+        <button id="toggleDark" class="btn ghost small">🌙/☀️</button>
+      </div>          
+      <div style="display:flex;gap:12px;align-items:center">
+        <img src="" alt="" class="logo"/>
+        <div class="title">
+          <h1>ASOKA BABY STORE JATIWARINGIN</h1>
+          <p>JL. RAYA JATIWARINGIN</p>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:12px;color:#444">Minggu, <span id="nowDate">--</span></div>
+        <div style="font-size:12px;color:#444">Kasir: <strong id="kasirName">LUTHFI</strong></div>
+      </div>
+      <div style="width:140px;text-align:right">
+        <div class="machine">No Mesin: <strong>2102</strong></div>
+      </div>
+    </header>
+
+    <!-- PANEL ATAS -->
+    <div class="top">
+      <div class="member-panel">
+        <label>No Member</label>
+        <input id="memberNo" placeholder="No member (kosong jika umum)"/>
+        <label>Nama Member</label>
+        <input id="memberName" placeholder="Nama member"/>
+        <label>Point</label>
+        <input id="memberPoint" placeholder="Point" readonly/>
+        <button id="applyMember" class="btn full">Apply Member</button>
+      </div>
+
+      <div class="center-panel">
+        <div class="big-total">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div class="label">Invoice</div>
+              <div style="display:flex;gap:6px;margin-top:6px">
+                <input id="invStore" value="2102"/>
+                <input id="invTerminal" value="137912"/>
+                <input id="invNo" value="00001"/>
+              </div>
+            </div>
+            <div style="flex:1"></div>
+            <div>
+              <div class="label">TOTAL</div>
+              <div class="number" id="grandTotal">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <input id="barcodeInput" type="text" placeholder="Scan / ketik PLU atau Barcode & Enter" autofocus />
+          <button id="addByBarcode" class="btn">Tambah</button>
+          <button id="openMaster" class="btn ghost">Master Barang</button>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="info">
+          <div class="label">Nama Kasir</div>
+          <div style="font-weight:800">LUTHFI</div>
+        </div>
+        <div class="info">
+          <div class="label">Modal Kasir</div>
+          <div style="font-weight:800">Rp <span id="modalKasir">0</span></div>
+        </div>
+        <div class="flex-row">
+          <button class="btn pending" id="btnPending">Pending</button>
+          <button class="btn pay" id="btnSettle">Bayar</button>
+        </div>
+        <div class="flex-row">
+          <button class="btn danger" id="btnClear">Void</button>
+          <button class="btn danger" id="btnPrint">Print</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABEL KERANJANG -->
+    <div class="table-wrap">
+      <table id="cartTable">
+        <thead>
+          <tr>
+            <th class="plu-cell">PLU / Barcode</th>
+            <th class="master-name">MASTER BARANG</th>
+            <th class="price-cell">PRICE</th>
+            <th class="qty-cell">QTY</th>
+            <th class="disc-cell">DISC %</th>
+            <th class="net-cell">NET PRICE</th>
+            <th class="total-cell">TOTAL</th>
+            <th style="width:70px;text-align:center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="cartBody"></tbody>
+      </table>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <div class="summary">
+        <div class="box">
+          <div class="label">TOTAL ITEM</div>
+          <div id="totalItems" class="val">0</div>
+        </div>
+        <div class="box">
+          <div class="label">TOTAL QTY</div>
+          <div id="totalQty" class="val">0</div>
+        </div>
+        <div class="box">
+          <div class="label">DISCOUNT</div>
+          <div id="totalDiscount" class="val">0</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="savePending" class="btn ghost">Simpan Pending</button>
+        <button id="loadPending" class="btn ghost">Load Pending</button>
+        <button id="clearCart" class="btn ghost">Bersihkan</button>
+        <button id="openReport" class="btn">Laporan</button>
+        <button id="settle" class="btn pay">Bayar (F11)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PEMBAYARAN -->
+  <div class="modal-back" id="modalPay">
+    <div class="modal">
+      <button class="modal-close" onclick="closePayModal()">✖</button>
+      <h3>Proses Pembayaran</h3>
+      <div class="modal-content">
+        <div class="flex-1">
+          <div class="label">Total</div>
+          <div id="payTotal" class="total-big">0</div>
+
+          <div class="row">
+            <label>Bayar (tunai)</label>
+            <input id="payAmount" type="number" min="0" value="0" />
+          </div>
+
+          <div class="row">
+            <label>Kembali</label>
+            <input id="payChange" readonly />
+          </div>
+
+          <div class="flex-row">
+            <button id="confirmPay" class="btn pay">Konfirmasi Bayar</button>
+            <button id="cancelPay" class="btn ghost">Batal</button>
+          </div>
+        </div>
+
+        <div class="receipt-box">
+          <div class="label">Preview Struk</div>
+          <div class="receipt" id="receiptPreview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MASTER BARANG -->
+  <div class="modal-back" id="modalMaster">
+    <div class="modal">
+      <button class="modal-close" onclick="closeMaster()">✖</button>
+      <h3>Master Barang (Contoh)</h3>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>PLU</th><th>Nama</th><th>Harga</th><th></th></tr></thead>
+          <tbody id="masterList"></tbody>
+        </table>
+      </div>
+      <div class="align-right">
+        <button id="closeMaster" class="btn ghost">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL LAPORAN -->
+  <div class="modal-back" id="modalReport">
+    <div class="modal">
+      <button class="modal-close" onclick="closeReport()">✖</button>
+      <h3>Laporan Penjualan</h3>
+
+      <!-- FILTER TANGGAL -->
+      <div class="filter">
+        <label>Dari: <input type="date" id="filterFrom"></label>
+        <label>Sampai: <input type="date" id="filterTo"></label>
+        <button id="applyFilter" class="btn ghost">Filter</button>
+      </div>
+
+      <!-- TABEL LAPORAN -->
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Invoice</th>
+              <th>Kasir</th>
+              <th style="text-align:right">Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="reportList"></tbody>
+        </table>
+      </div>
+
+      <!-- TOMBOL -->
+      <div class="align-right gap">
+        <button id="exportCSV" class="btn">Export CSV</button>
+        <button id="closeReport" class="btn ghost">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
