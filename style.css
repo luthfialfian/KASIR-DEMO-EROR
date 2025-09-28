@@ -610,3 +610,18 @@ tbody td{
   0%,100%{transform:translateY(0);}
   50%{transform:translateY(-4px);}
 }
+@media (max-width: 900px) {
+    .table-wrap {
+      overflow-x: auto;  /* bikin tabel bisa di-scroll ke samping */
+    }
+    table {
+      min-width: unset;  /* biar tabel bisa menyesuaikan layar */
+      font-size: 12px;   /* perkecil font biar muat */
+    }
+  }
+  @media (max-width: 900px) {
+    .member-panel { order: 2; }
+    .center-panel { order: 1; }
+    .right-panel { order: 3; }
+  }
+    
